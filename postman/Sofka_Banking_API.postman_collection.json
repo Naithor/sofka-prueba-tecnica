@@ -1,0 +1,1191 @@
+{
+	"info": {
+		"_postman_id": "sofka-prueba-tecnica-banking-v2",
+		"name": "Sofka Banking API - Prueb@ Técnica",
+		"description": "Colección completa para probar los microservicios bancarios. Incluye autenticación JWT y todos los flujos del enunciado.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrlClientes",
+			"value": "http://localhost:8081"
+		},
+		{
+			"key": "baseUrlCuentas",
+			"value": "http://localhost:8082"
+		},
+		{
+			"key": "jwtToken",
+			"value": ""
+		},
+		{
+			"key": "clienteId",
+			"value": ""
+		},
+		{
+			"key": "cuentaId",
+			"value": ""
+		},
+		{
+			"key": "movimientoId",
+			"value": ""
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwtToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "AUTH - Autenticación",
+			"item": [
+				{
+					"name": "1. Login (Obtener Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.collectionVariables.set('jwtToken', jsonData.token);",
+									"        console.log('Token guardado exitosamente');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"JLEMA001\",\n    \"password\": \"1234\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrlClientes}}/api/v1/auth/login",
+							"host": ["{{baseUrlClientes}}"],
+							"path": ["api", "v1", "auth", "login"]
+						},
+						"description": "Paso 1: Iniciar sesión para obtener el token JWT. Este endpoint guarda automáticamente el token en la variable {{jwtToken}}."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Register (Crear cliente + Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.datos && jsonData.datos.token) {",
+									"        pm.collectionVariables.set('jwtToken', jsonData.datos.token);",
+									"        console.log('Token de registro guardado');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"TEST001\",\n    \"password\": \"test123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrlClientes}}/api/v1/auth/register",
+							"host": ["{{baseUrlClientes}}"],
+							"path": ["api", "v1", "auth", "register"]
+						},
+						"description": "Registrar un nuevo cliente y obtener token JWT"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "F1 - CLIENTES (CRUD)",
+			"item": [
+				{
+					"name": "POST - Crear Cliente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.datos && jsonData.datos.id) {",
+									"        pm.collectionVariables.set('clienteId', jsonData.datos.id);",
+									"        console.log('Cliente creado con ID:', jsonData.datos.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Jose Lema\",\n    \"genero\": \"Masculino\",\n    \"edad\": 25,\n    \"identificacion\": \"1234567890\",\n    \"direccion\": \"Otavalo sn y principal\",\n    \"telefono\": \"0982547851\",\n    \"clienteId\": \"JLEMA001\",\n    \"contrasena\": \"1234\",\n    \"estado\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrlClientes}}/api/v1/clientes",
+							"host": ["{{baseUrlClientes}}"],
+							"path": ["api", "v1", "clientes"]
+						},
+						"description": "F1 - Crear un nuevo cliente. Para login usar: username=JLEMA001, password=1234"
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Listar Clientes (paginado)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlClientes}}/api/v1/clientes?page=0&size=20",
+							"host": ["{{baseUrlClientes}}"],
+							"path": ["api", "v1", "clientes"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						},
+						"description": "F1 - Obtener lista paginada de clientes"
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Obtener Cliente por ID",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlClientes}}/api/v1/clientes/{{clienteId}}",
+							"host": ["{{baseUrlClientes}}"],
+							"path": ["api", "v1", "clientes", "{{clienteId}}"]
+						},
+						"description": "F1 - Obtener un cliente específico por su ID"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT - Actualizar Cliente",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Jose Lema Actualizado\",\n    \"genero\": \"Masculino\",\n    \"edad\": 26,\n    \"identificacion\": \"1234567890\",\n    \"direccion\": \"Nueva dirección\",\n    \"telefono\": \"0999999999\",\n    \"clienteId\": \"JLEMA001\",\n    \"contrasena\": \"1234\",\n    \"estado\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrlClientes}}/api/v1/clientes/{{clienteId}}",
+							"host": ["{{baseUrlClientes}}"],
+							"path": ["api", "v1", "clientes", "{{clienteId}}"]
+						},
+						"description": "F1 - Actualizar datos de un cliente"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE - Eliminar Cliente",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlClientes}}/api/v1/clientes/{{clienteId}}",
+							"host": ["{{baseUrlClientes}}"],
+							"path": ["api", "v1", "clientes", "{{clienteId}}"]
+						},
+						"description": "F1 - Eliminar un cliente"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "F1 - CUENTAS (CRUD)",
+			"item": [
+				{
+					"name": "POST - Crear Cuenta",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.datos && jsonData.datos.id) {",
+									"        pm.collectionVariables.set('cuentaId', jsonData.datos.id);",
+									"        console.log('Cuenta creada con ID:', jsonData.datos.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"numeroCuenta\": \"478758\",\n    \"tipoCuenta\": \"AHORROS\",\n    \"saldoInicial\": 2000.00,\n    \"saldoDisponible\": 2000.00,\n    \"estado\": true,\n    \"clienteId\": 1,\n    \"clienteIdentificacion\": \"1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/cuentas",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "cuentas"]
+						},
+						"description": "F1 - Crear una nueva cuenta bancaria. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Listar Cuentas (paginado)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/cuentas?page=0&size=20",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "cuentas"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						},
+						"description": "F1 - Obtener lista paginada de cuentas. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Obtener Cuenta por ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/cuentas/{{cuentaId}}",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "cuentas", "{{cuentaId}}"]
+						},
+						"description": "F1 - Obtener una cuenta específica. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Cuentas por Cliente",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/cuentas/cliente/1",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "cuentas", "cliente", "1"]
+						},
+						"description": "Obtener todas las cuentas de un cliente específico. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "PUT - Actualizar Cuenta",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"numeroCuenta\": \"478758\",\n    \"tipoCuenta\": \"AHORROS\",\n    \"saldoInicial\": 2000.00,\n    \"saldoDisponible\": 2000.00,\n    \"estado\": false,\n    \"clienteId\": 1,\n    \"clienteIdentificacion\": \"1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/cuentas/{{cuentaId}}",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "cuentas", "{{cuentaId}}"]
+						},
+						"description": "F1 - Actualizar una cuenta. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE - Eliminar Cuenta",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/cuentas/{{cuentaId}}",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "cuentas", "{{cuentaId}}"]
+						},
+						"description": "F1 - Eliminar una cuenta. Requiere JWT Token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "F2/F3 - MOVIMIENTOS",
+			"item": [
+				{
+					"name": "POST - Registrar Depósito",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.datos && jsonData.datos.id) {",
+									"        pm.collectionVariables.set('movimientoId', jsonData.datos.id);",
+									"        console.log('Depósito registrado con ID:', jsonData.datos.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tipoMovimiento\": \"DEPOSITO\",\n    \"valor\": 600,\n    \"cuentaId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/movimientos",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "movimientos"]
+						},
+						"description": "F2 - Registrar un depósito. Actualiza el saldo disponible. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "POST - Registrar Retiro",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tipoMovimiento\": \"RETIRO\",\n    \"valor\": 100,\n    \"cuentaId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/movimientos",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "movimientos"]
+						},
+						"description": "F2 - Registrar un retiro. Actualiza el saldo disponible. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "POST - Retiro con Saldo Insuficiente (F3)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tipoMovimiento\": \"RETIRO\",\n    \"valor\": 999999,\n    \"cuentaId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/movimientos",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "movimientos"]
+						},
+						"description": "F3 - Validar que se rechace el retiro cuando no hay saldo disponible. Debe retornar 422 con mensaje 'Saldo no disponible'. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Listar Movimientos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/movimientos",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "movimientos"]
+						},
+						"description": "Obtener todos los movimientos. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Movimiento por ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/movimientos/{{movimientoId}}",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "movimientos", "{{movimientoId}}"]
+						},
+						"description": "Obtener un movimiento específico por ID. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Movimientos por Cuenta",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/movimientos/cuenta/1",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "movimientos", "cuenta", "1"]
+						},
+						"description": "Obtener todos los movimientos de una cuenta específica. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Movimientos por Cuenta y Fechas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/movimientos/cuenta/1/fechas?fechaInicio=2026-01-01&fechaFin=2026-12-31",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "movimientos", "cuenta", "1", "fechas"],
+							"query": [
+								{
+									"key": "fechaInicio",
+									"value": "2026-01-01"
+								},
+								{
+									"key": "fechaFin",
+									"value": "2026-12-31"
+								}
+							]
+						},
+						"description": "Obtener movimientos filtrados por cuenta y rango de fechas. Requiere JWT Token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "F4 - REPORTES",
+			"item": [
+				{
+					"name": "GET - Estado de Cuenta (con fechas)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/reportes?clienteId=1&fechaInicio=2026-01-01&fechaFin=2026-12-31",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "reportes"],
+							"query": [
+								{
+									"key": "clienteId",
+									"value": "1"
+								},
+								{
+									"key": "fechaInicio",
+									"value": "2026-01-01"
+								},
+								{
+									"key": "fechaFin",
+									"value": "2026-12-31"
+								}
+							]
+						},
+						"description": "F4 - Generar reporte de estado de cuenta con cuentas y movimientos. Requiere JWT Token."
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Estado de Cuenta (mes actual)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/reportes?clienteId=1",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "reportes"],
+							"query": [
+								{
+									"key": "clienteId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "F4 - Generar reporte de estado de cuenta del mes actual. Requiere JWT Token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CASOS DE USO - Enunciado",
+			"item": [
+				{
+					"name": "1. Crear Usuarios (Jose Lema, Marianela, Juan)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const timestamp = Date.now();",
+									"pm.collectionVariables.set('uniqueId', timestamp);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"item": [
+						{
+							"name": "Jose Lema",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nombre\": \"Jose Lema\",\n    \"genero\": \"Masculino\",\n    \"edad\": 25,\n    \"identificacion\": \"1234567890\",\n    \"direccion\": \"Otavalo sn y principal\",\n    \"telefono\": \"0982547851\",\n    \"clienteId\": \"JLEMA001\",\n    \"contrasena\": \"1234\",\n    \"estado\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlClientes}}/api/v1/clientes",
+									"host": ["{{baseUrlClientes}}"],
+									"path": ["api", "v1", "clientes"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Marianela Montalvo",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nombre\": \"Marianela Montalvo\",\n    \"genero\": \"Femenino\",\n    \"edad\": 30,\n    \"identificacion\": \"9876543210\",\n    \"direccion\": \"Amazonas y NNUU\",\n    \"telefono\": \"097548965\",\n    \"clienteId\": \"MMONTAL001\",\n    \"contrasena\": \"5678\",\n    \"estado\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlClientes}}/api/v1/clientes",
+									"host": ["{{baseUrlClientes}}"],
+									"path": ["api", "v1", "clientes"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Juan Osorio",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nombre\": \"Juan Osorio\",\n    \"genero\": \"Masculino\",\n    \"edad\": 35,\n    \"identificacion\": \"5555555555\",\n    \"direccion\": \"13 junio y Equinoccial\",\n    \"telefono\": \"098874587\",\n    \"clienteId\": \"JOSORIO001\",\n    \"contrasena\": \"1245\",\n    \"estado\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlClientes}}/api/v1/clientes",
+									"host": ["{{baseUrlClientes}}"],
+									"path": ["api", "v1", "clientes"]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "2. Crear Cuentas Iniciales",
+					"item": [
+						{
+							"name": "Cuenta 478758 - Jose Lema (Ahorro 2000)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwtToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"numeroCuenta\": \"478758\",\n    \"tipoCuenta\": \"AHORROS\",\n    \"saldoInicial\": 2000.00,\n    \"saldoDisponible\": 2000.00,\n    \"estado\": true,\n    \"clienteId\": 1,\n    \"clienteIdentificacion\": \"1234567890\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlCuentas}}/api/v1/cuentas",
+									"host": ["{{baseUrlCuentas}}"],
+									"path": ["api", "v1", "cuentas"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Cuenta 225487 - Marianela (Corriente 100)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwtToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"numeroCuenta\": \"225487\",\n    \"tipoCuenta\": \"CORRIENTE\",\n    \"saldoInicial\": 100.00,\n    \"saldoDisponible\": 100.00,\n    \"estado\": true,\n    \"clienteId\": 2,\n    \"clienteIdentificacion\": \"9876543210\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlCuentas}}/api/v1/cuentas",
+									"host": ["{{baseUrlCuentas}}"],
+									"path": ["api", "v1", "cuentas"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Cuenta 495878 - Juan (Ahorros 0)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwtToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"numeroCuenta\": \"495878\",\n    \"tipoCuenta\": \"AHORROS\",\n    \"saldoInicial\": 0.00,\n    \"saldoDisponible\": 0.00,\n    \"estado\": true,\n    \"clienteId\": 3,\n    \"clienteIdentificacion\": \"5555555555\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlCuentas}}/api/v1/cuentas",
+									"host": ["{{baseUrlCuentas}}"],
+									"path": ["api", "v1", "cuentas"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Cuenta 496825 - Juan (Ahorros 540)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwtToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"numeroCuenta\": \"496825\",\n    \"tipoCuenta\": \"AHORROS\",\n    \"saldoInicial\": 540.00,\n    \"saldoDisponible\": 540.00,\n    \"estado\": true,\n    \"clienteId\": 3,\n    \"clienteIdentificacion\": \"5555555555\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlCuentas}}/api/v1/cuentas",
+									"host": ["{{baseUrlCuentas}}"],
+									"path": ["api", "v1", "cuentas"]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "3. Crear Cuenta Corriente Jose Lema",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"numeroCuenta\": \"585545\",\n    \"tipoCuenta\": \"CORRIENTE\",\n    \"saldoInicial\": 1000.00,\n    \"saldoDisponible\": 1000.00,\n    \"estado\": true,\n    \"clienteId\": 1,\n    \"clienteIdentificacion\": \"1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/cuentas",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "cuentas"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Registrar Movimientos",
+					"item": [
+						{
+							"name": "Retiro 575 - Cuenta 478758 (Jose)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwtToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"tipoMovimiento\": \"RETIRO\",\n    \"valor\": 575,\n    \"cuentaId\": 1\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlCuentas}}/api/v1/movimientos",
+									"host": ["{{baseUrlCuentas}}"],
+									"path": ["api", "v1", "movimientos"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deposito 600 - Cuenta 225487 (Marianela)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwtToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"tipoMovimiento\": \"DEPOSITO\",\n    \"valor\": 600,\n    \"cuentaId\": 2\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlCuentas}}/api/v1/movimientos",
+									"host": ["{{baseUrlCuentas}}"],
+									"path": ["api", "v1", "movimientos"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deposito 150 - Cuenta 495878 (Juan - Saldo 0)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwtToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"tipoMovimiento\": \"DEPOSITO\",\n    \"valor\": 150,\n    \"cuentaId\": 3\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlCuentas}}/api/v1/movimientos",
+									"host": ["{{baseUrlCuentas}}"],
+									"path": ["api", "v1", "movimientos"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Retiro 540 - Cuenta 496825 (Juan - Saldo 540)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwtToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"tipoMovimiento\": \"RETIRO\",\n    \"valor\": 540,\n    \"cuentaId\": 4\n}"
+								},
+								"url": {
+									"raw": "{{baseUrlCuentas}}/api/v1/movimientos",
+									"host": ["{{baseUrlCuentas}}"],
+									"path": ["api", "v1", "movimientos"]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "5. Reporte - Movimientos por Cliente y Fechas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlCuentas}}/api/v1/reportes?clienteId=2",
+							"host": ["{{baseUrlCuentas}}"],
+							"path": ["api", "v1", "reportes"],
+							"query": [
+								{
+									"key": "clienteId",
+									"value": "2"
+								}
+							]
+						},
+						"description": "Reporte de movimientos de Marianela Montalvo"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

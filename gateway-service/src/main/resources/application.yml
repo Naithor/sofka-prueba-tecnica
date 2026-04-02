@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: gateway-service
+
+server:
+  port: 8080
+
+spring.main.web-application-type: reactive
+
+jwt:
+  secret: ${JWT_SECRET:dGhpc0lzQVZlcnlTZWN1cmVTZWNyZXRLZXlGb3JKV1RUb2tlbkdlbmVyYXRpb25BbmRWYWxpZGF0aW9u}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+gateway:
+  servicios:
+    clientes:
+      uri: ${GATEWAY_CLIENTES_URI:http://localhost:8081}
+    cuentas:
+      uri: ${GATEWAY_CUENTAS_URI:http://localhost:8082}
+
+spring.data.redis:
+  host: ${SPRING_DATA_REDIS_HOST:localhost}
+  port: ${SPRING_DATA_REDIS_PORT:6379}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    reactor.netty: WARN

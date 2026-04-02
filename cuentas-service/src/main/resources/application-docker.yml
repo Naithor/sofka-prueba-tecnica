@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: cuentas-service
+  datasource:
+    url: jdbc:postgresql://postgres-cuentas:5432/db_cuentas
+    username: postgres
+    password: postgres_secure
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+
+server:
+  port: 8082
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    root: INFO
+    com.naithor.sofkapruebatecnica: DEBUG
