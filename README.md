@@ -2,9 +2,9 @@
 
 ## 📋 Descripción
 
-Solución completa de microservicios para gestión de clientes, cuentas y movimientos bancarios. Implementado con Spring Boot 4.0.4, PostgreSQL, RabbitMQ y Docker.
+Solución de microservicios para gestión de clientes, cuentas y movimientos bancarios. Implementado con Spring Boot 4.0.4, PostgreSQL, RabbitMQ y Docker.
 
-**Nivel:** Senior - Implementa todas las funcionalidades F1-F7 con arquitectura escalable, resiliente y desacoplada.
+**Nivel:** Senior - Implementa todas las funcionalidades F1-F7.
 
 ---
 
@@ -29,7 +29,7 @@ Solución completa de microservicios para gestión de clientes, cuentas y movimi
 
 4. **Bases de Datos** (PostgreSQL)
    - `db_clientes`: Datos de personas y clientes
-   - `db_cuentas`: Cuentas y movimientos (con índices optimizados)
+   - `db_cuentas`: Cuentas y movimientos
 
 ### Patrones Implementados
 
@@ -46,23 +46,23 @@ Solución completa de microservicios para gestión de clientes, cuentas y movimi
 
 ### F1: CRUD Completo
 - **Endpoints Clientes:**
-  - `POST /api/v1/clientes` - Crear cliente
-  - `GET /api/v1/clientes` - Listar todos
-  - `GET /api/v1/clientes/{id}` - Obtener por ID
-  - `PUT /api/v1/clientes/{id}` - Actualizar
+  - `POST /api/v1/clientes`        - Crear cliente
+  - `GET /api/v1/clientes`         - Listar todos
+  - `GET /api/v1/clientes/{id}`    - Obtener por ID
+  - `PUT /api/v1/clientes/{id}`    - Actualizar
   - `DELETE /api/v1/clientes/{id}` - Eliminar
 
 - **Endpoints Cuentas:**
-  - `POST /api/v1/cuentas` - Crear cuenta
-  - `GET /api/v1/cuentas` - Listar todas
-  - `GET /api/v1/cuentas/{id}` - Obtener por ID
-  - `PUT /api/v1/cuentas/{id}` - Actualizar
+  - `POST /api/v1/cuentas`        - Crear cuenta
+  - `GET /api/v1/cuentas`         - Listar todas
+  - `GET /api/v1/cuentas/{id}`    - Obtener por ID
+  - `PUT /api/v1/cuentas/{id}`    - Actualizar
   - `DELETE /api/v1/cuentas/{id}` - Eliminar
 
 - **Endpoints Movimientos:**
-  - `POST /api/v1/movimientos` - Registrar movimiento
-  - `GET /api/v1/movimientos` - Listar todos
-  - `GET /api/v1/movimientos/{id}` - Obtener por ID
+  - `POST /api/v1/movimientos`        - Registrar movimiento
+  - `GET /api/v1/movimientos`         - Listar todos
+  - `GET /api/v1/movimientos/{id}`    - Obtener por ID
   - `DELETE /api/v1/movimientos/{id}` - Eliminar
 
 ### F2: Registro de Movimientos
@@ -107,61 +107,12 @@ Solución completa de microservicios para gestión de clientes, cuentas y movimi
 ## 🚀 Guía de Instalación
 
 ### Requisitos Previos
-- Java 26 (JDK)
+- Java 21 (JDK)
 - Maven 3.9+
 - Docker & Docker Compose
 - Git
 
-### Opción 1: Despliegue Local (Desarrollo)
-
-#### 1. Clonar Repositorio
-```bash
-git clone <repo-url>
-cd sofka-prueba-tecnica
-```
-
-#### 2. Instalar Dependencias
-```bash
-mvn clean install -DskipTests
-```
-
-#### 3. Configurar Base de Datos Local
-
-**PostgreSQL - Cliente Service:**
-```sql
-CREATE DATABASE db_clientes;
--- Ejecutar: scripts/init-clientes.sql
-```
-
-**PostgreSQL - Cuentas Service:**
-```sql
-CREATE DATABASE db_cuentas;
--- Ejecutar: scripts/init-cuentas.sql
-```
-
-**RabbitMQ:**
-```bash
-# Docker local
-docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.12-management-alpine
-```
-
-#### 4. Ejecutar Microservicios
-
-**Terminal 1 - Clientes:**
-```bash
-cd clientes-service
-mvn spring-boot:run
-# http://localhost:8081/api/v1/clientes
-```
-
-**Terminal 2 - Cuentas:**
-```bash
-cd cuentas-service
-mvn spring-boot:run
-# http://localhost:8082/api/v1/cuentas
-```
-
-### Opción 2: Despliegue con Docker Compose (Recomendado)
+### Despliegue con Docker Compose
 
 #### 1. Construir y Ejecutar
 ```bash
@@ -377,20 +328,20 @@ movimientos
 
 | Componente | Versión | Propósito |
 |-----------|---------|----------|
-| Java | 26 | Lenguaje base |
-| Spring Boot | 4.0.4 | Framework |
-| Spring Data JPA | 4.0.4 | ORM |
-| Spring AMQP | 4.0.4 | Message Broker |
-| PostgreSQL | 15 | Base de datos |
-| RabbitMQ | 3.12 | Event streaming |
-| Lombok | Latest | Boilerplate reduction |
-| Mockito | Latest | Unit testing |
-| TestContainers | 1.19.3 | Integration testing |
-| Docker | Latest | Containerization |
+| Java | 21      | Lenguaje base |
+| Spring Boot | 4.0.4   | Framework |
+| Spring Data JPA | 4.0.4   | ORM |
+| Spring AMQP | 4.0.4   | Message Broker |
+| PostgreSQL | 15      | Base de datos |
+| RabbitMQ | 3.12    | Event streaming |
+| Lombok | Latest  | Boilerplate reduction |
+| Mockito | Latest  | Unit testing |
+| TestContainers | 1.19.3  | Integration testing |
+| Docker | Latest  | Containerization |
 
 ---
 
-## 📖 Decisiones Técnicas Senior
+## 📖 Decisiones Técnicas
 
 ### 1. Arquitectura Desacoplada
 - **Decisión:** Dos microservicios separados con comunicación asincrónica
@@ -410,7 +361,7 @@ movimientos
 ### 4. Índices Estratégicos
 - **Campos indexados:** `identificacion`, `cliente_id`, `numero_cuenta`, `fecha`, `cuenta_id`
 - **Beneficio:** Queries de reportes eficientes
-- **Costo:** Escritura ligeramente más lenta (acceptable)
+- **Costo:** Escritura ligeramente más lenta
 
 ### 5. Transacciones Atómicas
 - **Decisión:** `@Transactional` en ServiceLayer
@@ -453,20 +404,10 @@ movimientos
 - ✅ Despliegue Docker Compose (F7)
 - ✅ Scripts SQL de inicialización
 - ✅ Colección Postman JSON
-- ✅ Documentación README (este archivo)
-
----
-
-## 🤝 Soporte
-
-Para preguntas sobre la arquitectura o implementación, referirse a:
-- Documentación inline en código (comentarios)
-- Estructura de paquetes indica la arquitectura
-- Tests como ejemplos de uso
-
+- ✅ Documentación README
+- 
 ---
 
 **Versión:** 1.0.0  
 **Fecha:** Marzo 2025  
-**Autor:** Desarrollador Senior - Sofka Test
-
+**Autor:** Nicolas Pena Arias
