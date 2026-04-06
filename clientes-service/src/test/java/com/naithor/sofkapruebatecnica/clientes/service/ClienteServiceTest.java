@@ -252,20 +252,4 @@ class ClienteServiceTest {
             verify(clienteRepository, never()).delete(any());
         }
     }
-
-    @Nested
-    @DisplayName("Fallback Tests")
-    class FallbackTests {
-
-        @Test
-        @DisplayName("Debe lanzar RuntimeException en fallback")
-        void debeLanzarRuntimeExceptionEnFallback() {
-            ClienteDTO fallbackInput = createClienteDTO();
-            Throwable thrown = catchThrowable(() -> 
-                clienteService.crearClienteFallback(fallbackInput, new RuntimeException("Service down")));
-
-            assertThat(thrown).isInstanceOf(RuntimeException.class);
-            assertThat(thrown.getMessage()).contains("Servicio no disponible temporalmente");
-        }
-    }
 }

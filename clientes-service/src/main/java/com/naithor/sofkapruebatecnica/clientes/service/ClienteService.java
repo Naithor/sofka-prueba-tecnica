@@ -6,14 +6,9 @@ import com.naithor.sofkapruebatecnica.clientes.event.ClienteCreadoEvent;
 import com.naithor.sofkapruebatecnica.clientes.event.ClienteEliminadoEvent;
 import com.naithor.sofkapruebatecnica.clientes.repository.ClienteRepository;
 import com.naithor.sofkapruebatecnica.shared.exception.BusinessException;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
-import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +28,6 @@ public class ClienteService {
     private final ClienteRepository clienteRepository;
     private final RabbitTemplate rabbitTemplate;
     
-    @Retry(name = "clienteOperations")
-    @CircuitBreaker(name = "clienteService", fallbackMethod = "crearClienteFallback")
-    @CacheEvict(value = {"allClientes", "clientes"}, allEntries = true)
     public ClienteDTO crearCliente(ClienteDTO clienteDTO) {
         log.info("Creando cliente: {}", clienteDTO.getClienteId());
         
@@ -46,7 +38,7 @@ public class ClienteService {
         
         if (clienteRepository.findByIdentificacion(clienteDTO.getIdentificacion()).isPresent()) {
             throw new BusinessException("IDENTIFICACION_DUPLICADA", 
-                "Ya existe un cliente con la identificación: " + clienteDTO.getIdentificacion());
+                "Ya existe un cliente con la identificacion: " + clienteDTO.getIdentificacion());
         }
         
         Cliente cliente = new Cliente();
@@ -75,8 +67,6 @@ public class ClienteService {
         return mapToDTO(clienteGuardado);
     }
     
-    @Observed(name = "clientes.listar")
-    @Cacheable(value = "allClientes")
     @Transactional(readOnly = true)
     public List<ClienteDTO> obtenerTodos() {
         log.info("Obteniendo todos los clientes");
@@ -86,8 +76,6 @@ public class ClienteService {
             .toList();
     }
     
-    @Observed(name = "clientes.buscarPorId")
-    @Cacheable(value = "clienteById", key = "#id")
     @Transactional(readOnly = true)
     public ClienteDTO obtenerPorId(Long id) {
         log.info("Obteniendo cliente con ID: {}", id);
@@ -97,7 +85,6 @@ public class ClienteService {
         return mapToDTO(cliente);
     }
     
-    @CacheEvict(value = {"allClientes", "clienteById", "clientes"}, allEntries = true)
     public ClienteDTO actualizarCliente(Long id, ClienteDTO clienteDTO) {
         log.info("Actualizando cliente con ID: {}", id);
         
@@ -114,7 +101,7 @@ public class ClienteService {
         if (!cliente.getIdentificacion().equals(clienteDTO.getIdentificacion()) &&
             clienteRepository.findByIdentificacion(clienteDTO.getIdentificacion()).isPresent()) {
             throw new BusinessException("IDENTIFICACION_DUPLICADA", 
-                "Ya existe un cliente con la identificación: " + clienteDTO.getIdentificacion());
+                "Ya existe un cliente con la identificacion: " + clienteDTO.getIdentificacion());
         }
         
         cliente.setNombre(clienteDTO.getNombre());
@@ -133,7 +120,6 @@ public class ClienteService {
         return mapToDTO(clienteActualizado);
     }
     
-    @CacheEvict(value = {"allClientes", "clienteById", "clientes"}, allEntries = true)
     public void eliminarCliente(Long id) {
         log.info("Eliminando cliente con ID: {}", id);
         
@@ -166,10 +152,5 @@ public class ClienteService {
                 .contrasena(cliente.getContrasena())
                 .estado(cliente.getEstado())
                 .build();
-    }
-    
-    public ClienteDTO crearClienteFallback(ClienteDTO clienteDTO, Throwable t) {
-        log.error("Fallback activado para crearCliente: {}", t.getMessage());
-        throw new RuntimeException("Servicio no disponible temporalmente. Intente más tarde.");
     }
 }

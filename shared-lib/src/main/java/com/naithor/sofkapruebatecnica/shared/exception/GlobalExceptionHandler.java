@@ -30,19 +30,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
-        log.warn("Authentication exception: {} - {}", ex.getErrorCode(), ex.getMessage());
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .error("Authentication Error")
-                .errorCode(ex.getErrorCode())
-                .message(ex.getMessage())
-                .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()

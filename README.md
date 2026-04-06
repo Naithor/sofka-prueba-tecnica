@@ -63,24 +63,15 @@ Implementado con Spring Boot 4.0.4, PostgreSQL, RabbitMQ y Docker.
 ## Implementaciones Futuras (No incluidas en entregable)
 
 ```java
-// TODO (FUTURO): Agregar autenticación JWT
-// import org.springframework.security:spring-security-jwt
-// Implementar: JwtAuthenticationFilter, AuthController
+TODO (FUTURO): Agregar autenticación JWT
 
-// TODO (FUTURO): Agregar cache Redis
-// import org.springframework.boot:spring-boot-starter-data-redis
-// Implementar: RedisConfig, @Cacheable en servicios
+TODO (FUTURO): Agregar cache Redis
 
-// TODO (FUTURO): Agregar documentación OpenAPI
-// import org.springdoc:springdoc-openapi-starter-webmvc-ui
-// Implementar: OpenApiConfig, @Operation annotations
+TODO (FUTURO): Agregar documentación OpenAPI
 
-// TODO (FUTURO): Agregar resiliencia
-// import io.github.resilience4j:resilience4j-spring-boot3
-// Implementar: CircuitBreaker, RateLimiter
+TODO (FUTURO): Agregar resiliencia
 
-// TODO (FUTURO): Agregar paginación avanzada
-// Implementar: PageResponse en todos los listados
+TODO (FUTURO): Agregar paginación avanzada
 ```
 
 ---
